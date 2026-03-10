@@ -19,7 +19,7 @@ export default defineConfig([
       'simple-import-sort': simpleImportSort, 
     },
     extends: ['js/recommended'],
-    languageOptions: { globals: globals.browser },
+    languageOptions: { globals: globals.node },
     rules: {
       // normal rules 
       semi: ['warn', 'never'], // Disallow semicolons at the end of statements
@@ -35,7 +35,7 @@ export default defineConfig([
       'object-curly-spacing': ['warn', 'always'], // Require spaces inside curly braces (e.g., { foo: "bar" })
 
       'arrow-parens': ['warn', 'always'], // Require parentheses around arrow function parameters
-      
+
       'jsx-quotes': ['warn', 'prefer-double'], // Enforce double quotes in JSX attributes
     },
   },
