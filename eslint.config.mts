@@ -33,7 +33,7 @@ export default defineConfig([
 
       'comma-dangle': ['warn', 'always-multiline'], // Require trailing commas in multiline objects, arrays, etc.
 
-      'max-len': ['warn', { code: 120 }], // Warn when a line exceeds 80 characters
+      'max-len': ['warn', { code: 100 }], // Warn when a line exceeds 80 characters
 
       'object-curly-spacing': ['warn', 'always'], // Require spaces inside curly braces (e.g., { foo: "bar" })
 
