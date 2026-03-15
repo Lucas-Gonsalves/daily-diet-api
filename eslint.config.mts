@@ -1,3 +1,4 @@
+/* eslint-disable */
 import js from '@eslint/js'
 import { defineConfig, globalIgnores } from 'eslint/config'
 import prettier from 'eslint-plugin-prettier/recommended'

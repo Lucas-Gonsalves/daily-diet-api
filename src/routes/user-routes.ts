@@ -15,11 +15,16 @@ export async function userRoutes(app: FastifyInstance) {
     await knex('users').insert({ name, email })
     const userCreated = await knex('users').where({ email }).first()
 
-    reply.cookie('userId', userCreated?.id)
+    if (!userCreated) {
+      return reply.status(500).send({
+        message: 'Internal server error.',
+      })
+    }
 
-    reply.status(201).send({
+    reply.cookie('userId', userCreated.id)
+
+    return reply.status(201).send({
       message: 'User created with success.',
-      user: userCreated,
     })
   })
 }
