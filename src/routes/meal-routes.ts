@@ -5,6 +5,32 @@ import { knex } from '../database'
 import { verifyUserId } from '../middlewares/verify-user-id'
 
 export async function mealRoutes(app: FastifyInstance) {
+  app.get('/:id', { preHandler: [verifyUserId] }, async (req, reply) => {
+    const getMealIdParamsSchema = z.object({
+      id: z.string(),
+    })
+
+    const { userId } = req.cookies
+    const { id: mealId } = getMealIdParamsSchema.parse(req.params)
+
+    const meal = await knex('meals')
+      .where({
+        id: mealId,
+        user_id: userId!,
+      })
+      .first()
+
+    if (!meal) {
+      return reply.status(404).send({
+        message: 'Meal not founded.',
+      })
+    }
+
+    reply.send({
+      meal,
+    })
+  })
+
   app.get('/', { preHandler: [verifyUserId] }, async (req, reply) => {
     const { userId } = req.cookies
 

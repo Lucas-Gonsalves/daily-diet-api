@@ -37,7 +37,7 @@ describe('Meal Routes', () => {
     await app.close()
   })
 
-  it('should be able to create a new meal', async () => {
+  it('should creates a meal for an authenticated user', async () => {
     const { cookies } = await makeSut()
 
     const response = await request(app.server)
@@ -51,7 +51,7 @@ describe('Meal Routes', () => {
     })
   })
 
-  it('should be able to get all meals corresponding to the userId', async () => {
+  it('should returns all meals for the authenticated user', async () => {
     const { cookies } = await makeSut()
 
     const responsePost = await request(app.server)
@@ -74,6 +74,38 @@ describe('Meal Routes', () => {
           date: mealTemplate.date,
         },
       ],
+    })
+  })
+
+  it('should returns a meal by id for the authenticated user', async () => {
+    const { cookies } = await makeSut()
+
+    const responsePost = await request(app.server)
+      .post('/meals')
+      .set('Cookie', cookies)
+      .send(mealTemplate)
+
+    const responseGet = await request(app.server)
+      .get('/meals')
+      .set('Cookie', cookies)
+
+    const createdMealId = responseGet.body.meals[0].id
+
+    const responseGetById = await request(app.server)
+      .get(`/meals/${createdMealId}`)
+      .set('Cookie', cookies)
+
+    expect(responsePost.statusCode).toBe(201)
+    expect(responseGet.statusCode).toBe(200)
+    expect(createdMealId).toBeDefined()
+    expect(responseGetById.statusCode).toBe(200)
+    expect(responseGetById.body).toMatchObject({
+      meal: {
+        name: 'name-meal-test',
+        description: 'description-meal-test',
+        is_in_diet: 'no',
+        date: mealTemplate.date,
+      },
     })
   })
 })
