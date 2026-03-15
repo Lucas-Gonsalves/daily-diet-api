@@ -108,4 +108,39 @@ describe('Meal Routes', () => {
       },
     })
   })
+
+  it('should update the meal by meal id for the authenticated user', async () => {
+    const mealTemplateUpdated = {
+      name: 'name-meal-test-updated',
+      description: 'description-meal-test-updated',
+      isInDiet: 'yes',
+      date: new Date().toISOString(),
+    }
+
+    const { cookies } = await makeSut()
+
+    const responsePost = await request(app.server)
+      .post('/meals')
+      .set('Cookie', cookies)
+      .send(mealTemplate)
+
+    const responseGet = await request(app.server)
+      .get('/meals')
+      .set('Cookie', cookies)
+
+    const createdMealId = responseGet.body.meals[0].id
+
+    const responseGetById = await request(app.server)
+      .put(`/meals/${createdMealId}`)
+      .set('Cookie', cookies)
+      .send(mealTemplateUpdated)
+
+    expect(responsePost.statusCode).toBe(201)
+    expect(responseGet.statusCode).toBe(200)
+    expect(createdMealId).toBeDefined()
+    expect(responseGetById.statusCode).toBe(200)
+    expect(responseGetById.body).toMatchObject({
+      message: 'Meal updated with success.',
+    })
+  })
 })
