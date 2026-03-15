@@ -6,6 +6,13 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { app } from '../../../src/app'
 
 describe('Meal Routes', () => {
+  const mealTemplate = {
+    name: 'name-meal-test',
+    description: 'description-meal-test',
+    isInDiet: 'no',
+    date: new Date().toISOString(),
+  }
+
   const makeSut = async () => {
     const response = await request(app.server).post('/users').send({
       name: 'John Doe',
@@ -33,21 +40,40 @@ describe('Meal Routes', () => {
   it('should be able to create a new meal', async () => {
     const { cookies } = await makeSut()
 
-    const meal = {
-      name: 'name-meal-test',
-      description: 'description-meal-test',
-      isInDiet: false,
-      date: new Date(),
-    }
-
     const response = await request(app.server)
       .post('/meals')
       .set('Cookie', cookies)
-      .send(meal)
+      .send(mealTemplate)
 
     expect(response.statusCode).toBe(201)
     expect(response.body).toMatchObject({
       message: 'Meal created with success.',
+    })
+  })
+
+  it('should be able to get all meals corresponding to the userId', async () => {
+    const { cookies } = await makeSut()
+
+    const responsePost = await request(app.server)
+      .post('/meals')
+      .set('Cookie', cookies)
+      .send(mealTemplate)
+
+    const responseGet = await request(app.server)
+      .get('/meals')
+      .set('Cookie', cookies)
+
+    expect(responsePost.statusCode).toBe(201)
+    expect(responseGet.statusCode).toBe(200)
+    expect(responseGet.body).toMatchObject({
+      meals: [
+        {
+          name: 'name-meal-test',
+          description: 'description-meal-test',
+          is_in_diet: 'no',
+          date: mealTemplate.date,
+        },
+      ],
     })
   })
 })
