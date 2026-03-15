@@ -109,7 +109,7 @@ describe('Meal Routes', () => {
     })
   })
 
-  it('should update the meal by meal id for the authenticated user', async () => {
+  it('should update the meal by mealId for the authenticated user', async () => {
     const mealTemplateUpdated = {
       name: 'name-meal-test-updated',
       description: 'description-meal-test-updated',
@@ -130,7 +130,7 @@ describe('Meal Routes', () => {
 
     const createdMealId = responseGet.body.meals[0].id
 
-    const responseGetById = await request(app.server)
+    const responsePut = await request(app.server)
       .put(`/meals/${createdMealId}`)
       .set('Cookie', cookies)
       .send(mealTemplateUpdated)
@@ -138,9 +138,33 @@ describe('Meal Routes', () => {
     expect(responsePost.statusCode).toBe(201)
     expect(responseGet.statusCode).toBe(200)
     expect(createdMealId).toBeDefined()
-    expect(responseGetById.statusCode).toBe(200)
-    expect(responseGetById.body).toMatchObject({
+    expect(responsePut.statusCode).toBe(200)
+    expect(responsePut.body).toMatchObject({
       message: 'Meal updated with success.',
     })
+  })
+
+  it('should delete the meal by mealId for the authenticated user', async () => {
+    const { cookies } = await makeSut()
+
+    const responsePost = await request(app.server)
+      .post('/meals')
+      .set('Cookie', cookies)
+      .send(mealTemplate)
+
+    const responseGet = await request(app.server)
+      .get('/meals')
+      .set('Cookie', cookies)
+
+    const createdMealId = responseGet.body.meals[0].id
+
+    const respondeDelete = await request(app.server)
+      .delete(`/meals/${createdMealId}`)
+      .set('Cookie', cookies)
+
+    expect(responsePost.statusCode).toBe(201)
+    expect(responseGet.statusCode).toBe(200)
+    expect(createdMealId).toBeDefined()
+    expect(respondeDelete.statusCode).toBe(204)
   })
 })
