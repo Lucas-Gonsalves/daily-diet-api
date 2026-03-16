@@ -121,6 +121,7 @@ export async function mealRoutes(app: FastifyInstance) {
         description: newMeal.description ?? mealFinded.description,
         is_in_diet: newMeal.isInDiet ?? mealFinded.is_in_diet,
         date: newMeal.date ?? mealFinded.date,
+        updated_at: knex.fn.now(),
       })
 
     reply.status(200).send({
