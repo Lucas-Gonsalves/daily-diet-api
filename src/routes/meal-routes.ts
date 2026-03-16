@@ -5,6 +5,52 @@ import { knex } from '../database'
 import { verifyUserId } from '../middlewares/verify-user-id'
 
 export async function mealRoutes(app: FastifyInstance) {
+  app.get(
+    '/metrics',
+    { preHandler: [verifyUserId] },
+
+    async (req, reply) => {
+      const { userId } = req.cookies
+
+      const meals = await knex('meals')
+        .where({
+          user_id: userId!,
+        })
+        .orderBy('date', 'asc')
+
+      const length = meals.length
+
+      const totalInDiet = meals.filter(
+        (meal) => meal.is_in_diet === 'yes',
+      ).length
+
+      const totalOutDiet = meals.filter(
+        (meal) => meal.is_in_diet === 'no',
+      ).length
+
+      const sequenceDiet = meals.reduce(
+        (acc, meal) => {
+          if (meal.is_in_diet === 'yes') {
+            acc.current++
+            acc.best = Math.max(acc.best, acc.current)
+          } else {
+            acc.current = 0
+          }
+
+          return acc
+        },
+        { current: 0, best: 0 },
+      ).best
+
+      return reply.send({
+        length,
+        totalInDiet,
+        totalOutDiet,
+        dietSequence: sequenceDiet,
+      })
+    },
+  )
+
   app.delete('/:id', { preHandler: [verifyUserId] }, async (req, reply) => {
     const getMealIdParamsSchema = z.object({
       id: z.string(),

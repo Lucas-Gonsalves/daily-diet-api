@@ -167,4 +167,43 @@ describe('Meal Routes', () => {
     expect(createdMealId).toBeDefined()
     expect(respondeDelete.statusCode).toBe(204)
   })
+
+  it('should show the metrics of the meals for the authenticated user', async () => {
+    const { cookies } = await makeSut()
+
+    const responsePostFirst = await request(app.server)
+      .post('/meals')
+      .set('Cookie', cookies)
+      .send({
+        name: 'name-meal-test-first',
+        description: 'description-meal-first',
+        isInDiet: 'yes',
+        date: new Date().toISOString(),
+      })
+
+    const responsePostSecond = await request(app.server)
+      .post('/meals')
+      .set('Cookie', cookies)
+      .send({
+        name: 'name-meal-test-second',
+        description: 'description-meal-second',
+        isInDiet: 'no',
+        date: new Date().toISOString(),
+      })
+
+    const responseGet = await request(app.server)
+      .get('/meals/metrics')
+      .set('Cookie', cookies)
+
+    expect(responsePostFirst.statusCode).toBe(201)
+    expect(responsePostSecond.statusCode).toBe(201)
+
+    expect(responseGet.statusCode).toBe(200)
+    expect(responseGet.body).toMatchObject({
+      length: 2,
+      totalInDiet: 1,
+      totalOutDiet: 1,
+      dietSequence: 1,
+    })
+  })
 })
